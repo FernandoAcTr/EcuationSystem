@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="293.0"
+      prefWidth="358.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controller.MainController">
+
+    <MenuBar styleClass="menu-item">
+        <menus>
+            <Menu mnemonicParsing="false" text="Archivo">
+                <items>
+                    <MenuItem fx:id="mnuNew" mnemonicParsing="false" text="Nuevo"/>
+                    <MenuItem fx:id="mnuOpen" mnemonicParsing="false" text="Abrir"/>
+                    <SeparatorMenuItem mnemonicParsing="false"/>
+                    <MenuItem fx:id="mnuSave" mnemonicParsing="false" text="Guardar"/>
+                    <MenuItem fx:id="mnuSaveAs" mnemonicParsing="false" text="Guardar como..."/>
+                    <SeparatorMenuItem mnemonicParsing="false"/>
+                    <MenuItem fx:id="mnuClose" mnemonicParsing="false" text="Cerrar"/>
+                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Ayuda">
+                <items>
+                    <MenuItem fx:id="mnuHelp" mnemonicParsing="false" text="Ayuda"/>
+                    <MenuItem fx:id="mnuAbout" mnemonicParsing="false" text="Acerca de..."/>
+                </items>
+            </Menu>
+        </menus>
+    </MenuBar>
+
+    <JFXTabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+        <tabs>
+
+            <Tab text="Datos">
+                <content>
+                    <VBox spacing="10" styleClass="panel-default">
+
+                        <GridPane fx:id="paneTable" VBox.vgrow="ALWAYS" hgap="3" vgap="1"/>
+                        <HBox alignment="CENTER" spacing="10">
+                            <Spinner fx:id="spinNumVariable" prefWidth="70"/>
+                            <Button fx:id="btnNumVariables" text="Generar Matriz" styleClass="btn, btn-primary">
+                                <graphic>
+                                    <FontAwesomeIconView glyphName="TH_LARGE" size="25" fill="white"/>
+                                </graphic>
+                            </Button>
+                            <Button fx:id="btnResolve" text="Resolver" styleClass="btn, btn-success">
+                                <graphic>
+                                    <FontAwesomeIconView glyphName="CALCULATOR" size="25" fill="white"/>
+                                </graphic>
+                            </Button>
+                        </HBox>
+
+                        <padding>
+                            <Insets topRightBottomLeft="15"/>
+                        </padding>
+                    </VBox>
+                </content>
+            </Tab>
+
+            <Tab text="Solución">
+                <content>
+                    <TextArea fx:id="texxAreaSolution" styleClass="p"/>
+                </content>
+            </Tab>
+        </tabs>
+    </JFXTabPane>
+
+</VBox>
