@@ -1,5 +1,6 @@
 package controller;
 
+import com.jfoenix.controls.JFXTabPane;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -12,9 +13,11 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import model.ResolvMethods;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -31,10 +34,23 @@ public class MainController implements Initializable {
     @FXML
     private MenuItem mnuAbout;
 
+    @FXML
+    TextArea textAreaSolution;
+
+    @FXML
+    ComboBox<String> cmbProcedure;
+
+    @FXML
+    JFXTabPane tabPane;
+
     int numVariables;
+    ResolvMethods gauss;
+    DecimalFormat formatter;
 
     public void initialize(URL location, ResourceBundle resources) {
         initGUI();
+        gauss = new ResolvMethods();
+        formatter = new DecimalFormat("0.00");
     }
 
     public void initGUI() {
@@ -65,14 +81,17 @@ public class MainController implements Initializable {
 
         btnResolve.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                double data[][] = getTableData();
+                btnResolveAction(cmbProcedure.getSelectionModel().getSelectedIndex());
             }
         });
 
 
         SpinnerValueFactory values = new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 10);
-        values.setValue(3);
+        values.setValue(numVariables);
         spinNumVariable.setValueFactory(values);
+
+        cmbProcedure.getItems().add("Gauss");
+        cmbProcedure.getItems().add("Gauss-Jordan");
     }
 
     private void setNumVariables(int numVariables) {
@@ -115,5 +134,48 @@ public class MainController implements Initializable {
                 data[row][col] = num;
             }
         return data;
+    }
+
+    private void btnResolveAction(int type){
+        double data[][];
+        double results[];
+
+        data = getTableData();
+        gauss.setMatrix(data);
+        gauss.setNumVariables(numVariables);
+
+       if(type == 0){
+
+           gauss.resolvByGauss();
+           results = gauss.getGaussResults();
+
+           textAreaSolution.clear();
+           textAreaSolution.setText(gauss.getProcedure());
+           gauss.reestartProcedure();
+
+           textAreaSolution.appendText("\nCon esto obtenemos la solución de la última incógnita. Usarla para formar expresiones con las " +
+                   "filas anteriores, sustituir y resolver. Cada fila dará una solución para una incógnita\n");
+
+           for (int i = 0; i < results.length; i++) {
+               textAreaSolution.appendText("X"+(i+1)+" = "+formatter.format(results[i])+"\n");
+           }
+       }else if(type == 1){
+
+           gauss.resolvByGauss_Jordan();
+           results = gauss.getGaussJordanResults();
+
+           textAreaSolution.clear();
+           textAreaSolution.setText(gauss.getProcedure());
+           gauss.reestartProcedure();
+
+           textAreaSolution.appendText("\nCon esto obtenemos la solución de todas las incógnitas donde el valor de cada una" +
+                   "viene representado por el último valor de su respectiva fila en la matriz\n");
+
+           for (int i = 0; i < results.length; i++) {
+               textAreaSolution.appendText("X"+(i+1)+" = "+formatter.format(results[i])+"\n");
+           }
+       }
+
+       tabPane.getSelectionModel().selectNext();
     }
 }

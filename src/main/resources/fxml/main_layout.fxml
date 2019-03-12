@@ -31,7 +31,7 @@
         </menus>
     </MenuBar>
 
-    <JFXTabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+    <JFXTabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" fx:id="tabPane">
         <tabs>
 
             <Tab text="Datos">
@@ -46,6 +46,8 @@
                                     <FontAwesomeIconView glyphName="TH_LARGE" size="25" fill="white"/>
                                 </graphic>
                             </Button>
+                            <ComboBox fx:id="cmbProcedure" promptText="Procedimiento..."/>
+
                             <Button fx:id="btnResolve" text="Resolver" styleClass="btn, btn-success">
                                 <graphic>
                                     <FontAwesomeIconView glyphName="CALCULATOR" size="25" fill="white"/>
@@ -62,7 +64,7 @@
 
             <Tab text="Solución">
                 <content>
-                    <TextArea fx:id="texxAreaSolution" styleClass="p"/>
+                    <TextArea fx:id="textAreaSolution" styleClass="p" editable="false"/>
                 </content>
             </Tab>
         </tabs>

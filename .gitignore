@@ -122,4 +122,8 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
+
+META-INF/
+src/main/java/META-INF/
+
 # End of https://www.gitignore.io/api/java,maven,intellij+all
