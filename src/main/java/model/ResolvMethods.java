@@ -154,11 +154,12 @@ public class ResolvMethods {
 
     /**
      * ------------------------------------------------------------------------------------------------------------------------------------------
-     * METODO JACOBI
+     *                                               METODO JACOBI
      * ------------------------------------------------------------------------------------------------------------------------------------------
      */
 
-    public void resolvByJacobi() {
+    public double[] resolvByJacobi() {
+
         String tempExpresion;
         MultiVariableFuntion[] functions = new MultiVariableFuntion[numVariables];
         /*se usan 2 vectores porque en Jacobi, se usan siempre los mismos valores para evaluar cada funcion
@@ -205,6 +206,7 @@ public class ResolvMethods {
             ex.printStackTrace();
         }
 
+        return results;
     }
 
     private boolean verifyErrors(double errors[]) {
@@ -277,6 +279,67 @@ public class ResolvMethods {
     }
 
     //--------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     *                                               METODO GAUSS-SEIDEL
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     */
+
+    public double[] resolvByGauss_Seidel() {
+        String tempExpresion;
+        MultiVariableFuntion[] functions = new MultiVariableFuntion[numVariables];
+
+        double[] results = new double[numVariables];
+        double[] values = new double[numVariables];
+
+        double errors[] = new double[numVariables];
+
+        int iteration = 1;
+
+        for (int i = 0; i < functions.length; i++) {
+            tempExpresion = getExpressionCleared(matrix[i], i);
+            functions[i] = new MultiVariableFuntion(tempExpresion, numVariables);
+            results[i] = 0;
+            values[i] = 0;
+            errors[i] = Double.POSITIVE_INFINITY;
+        }
+
+        try {
+
+            //se van a reutilizar los metodos de Jacobi porque es exactamente el mismo formato
+            initJacobiProcedure();
+            concatJacobiProcedure(iteration, values, errors);
+
+            while (!verifyErrors(errors)) {
+
+                for (int currentFuntion = 0; currentFuntion < numVariables; currentFuntion++) {
+
+                    results[currentFuntion] = functions[currentFuntion].evaluateFrom(values);
+                    errors[currentFuntion] = Math.abs( (results[currentFuntion] - values[currentFuntion]) / results[currentFuntion] ) * 100;
+
+                    values[currentFuntion] = results[currentFuntion];
+
+                }
+
+                iteration++;
+                values = results.clone();
+
+                concatJacobiProcedure(iteration, values, errors);
+
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Error en resolvByJacobi");
+            ex.printStackTrace();
+        }
+
+        return results;
+
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------
+
 
     public String printMatrix() {
         String mat = "";

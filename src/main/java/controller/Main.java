@@ -10,7 +10,7 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main_layout.fxml"));
-        Scene scene = new Scene(root, 600, 300);
+        Scene scene = new Scene(root, 600, 340);
         scene.getStylesheets().add("/org/kordamp/bootstrapfx/bootstrapfx.css");
         scene.getStylesheets().add("/css/jfoenix-design.css");
         scene.getStylesheets().add("/css/jfoenix-fonts.css");
