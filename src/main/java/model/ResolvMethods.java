@@ -1,7 +1,5 @@
 package model;
 
-import javafx.scene.control.TextArea;
-
 import java.text.DecimalFormat;
 
 public class ResolvMethods {
@@ -10,6 +8,7 @@ public class ResolvMethods {
     private DecimalFormat formatter;
     private String procedure;
     private String separator;
+    private double errorPermited;
 
     public ResolvMethods() {
         procedure = "";
@@ -32,6 +31,16 @@ public class ResolvMethods {
             separator += "-";
         }
     }
+
+    public void setErrorPermited(double errorPermited) {
+        this.errorPermited = errorPermited;
+    }
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     * METODO GAUSS
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     */
 
     public void resolvByGauss() {
         int indexPivot, row, col;
@@ -88,6 +97,12 @@ public class ResolvMethods {
         return results;
     }
 
+    /**
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     * METODO GAUSS - JORDAN
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     */
+
     public void resolvByGauss_Jordan() {
         int indexPivot, row, col;
         double pivot, factor;
@@ -124,6 +139,7 @@ public class ResolvMethods {
         }
     }
 
+
     public double[] getGaussJordanResults() {
         double results[] = new double[numVariables];
         int pivotRow, col;
@@ -135,10 +151,132 @@ public class ResolvMethods {
         return results;
     }
 
-    private void concatProcedure() {
-        procedure += "\n" + printMatrix() + "\n";
+
+    /**
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     * METODO JACOBI
+     * ------------------------------------------------------------------------------------------------------------------------------------------
+     */
+
+    public void resolvByJacobi() {
+        String tempExpresion;
+        MultiVariableFuntion[] functions = new MultiVariableFuntion[numVariables];
+        /*se usan 2 vectores porque en Jacobi, se usan siempre los mismos valores para evaluar cada funcion
+          y necesito que esos valores prevalezcan hasta que se hayan evaluado todas las funciones.
+         */
+        double[] results = new double[numVariables];
+        double[] values = new double[numVariables];
+
+        double errors[] = new double[numVariables];
+
+        int iteration = 1;
+
+        for (int i = 0; i < functions.length; i++) {
+            tempExpresion = getExpressionCleared(matrix[i], i);
+            functions[i] = new MultiVariableFuntion(tempExpresion, numVariables);
+            results[i] = 0;
+            values[i] = 0;
+            errors[i] = Double.POSITIVE_INFINITY;
+        }
+
+        try {
+
+            initJacobiProcedure();
+            concatJacobiProcedure(iteration, values, errors);
+
+            while (!verifyErrors(errors)) {
+
+                for (int currentFuntion = 0; currentFuntion < numVariables; currentFuntion++) {
+
+                    results[currentFuntion] = functions[currentFuntion].evaluateFrom(values);
+                    errors[currentFuntion] = Math.abs( (results[currentFuntion] - values[currentFuntion]) / results[currentFuntion] ) * 100.0;
+
+                }
+
+                iteration++;
+                values = results.clone();
+
+                concatJacobiProcedure(iteration, values, errors);
+
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Error en resolvByJacobi");
+            ex.printStackTrace();
+        }
+
     }
 
+    private boolean verifyErrors(double errors[]) {
+        boolean stop = true;
+
+        for (double e : errors) {
+            if (e > errorPermited)
+                return false;
+        }
+
+        return stop;
+    }
+
+    private void initJacobiProcedure() {
+        formatter = new DecimalFormat("0.000000");
+        procedure = "";
+        procedure += String.format("%-6s\t", "No");
+
+        for (int i = 1; i <= numVariables; i++)
+            procedure += String.format("%-14s\t%-14s\t", "X" + i, "EP" + i);
+
+        procedure += "\n";
+    }
+
+    private void concatJacobiProcedure(int iteration, double[] values, double[] errors) {
+
+        if(iteration < 10)
+            procedure += String.format("%-6s\t", iteration);
+        else
+            procedure += String.format("%-5s\t", iteration);
+
+        if (iteration == 1)
+
+            for (int i = 0; i < numVariables; i++)
+                procedure += String.format("%14s\t%16s\t", formatter.format(values[i]), " ");
+         else
+            for (int i = 0; i < numVariables; i++)
+                procedure += String.format("%14s\t%14s\t", formatter.format(values[i]), formatter.format(errors[i]));
+
+        procedure += "\n";
+    }
+
+    /**
+     * Despeja un renglon de la matriz de valores para una cierta posicion
+     *
+     * @param values          El renglon de la matriz a despejar
+     * @param positionToClear La variable de ese renglon que se quiere despejar
+     * @return Espresion String despejada
+     */
+    public static String getExpressionCleared(double[] values, int positionToClear) {
+        String expression = "";
+
+        expression += "(" + values[values.length - 1] + " + ";
+
+        for (int position = 0; position < values.length - 1; position++) {
+
+            if (position != positionToClear) {
+                expression += (values[position] * -1) + "x" + (position + 1) + " + ";
+            }
+        }
+
+        expression = expression.substring(0, expression.length() - 2);
+
+        if (values[positionToClear] != 0)
+            expression += ") / " + values[positionToClear];
+        else
+            expression += ")";
+
+        return expression;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------
 
     public String printMatrix() {
         String mat = "";
@@ -156,11 +294,16 @@ public class ResolvMethods {
         return mat;
     }
 
+    private void concatProcedure() {
+        procedure += "\n" + printMatrix() + "\n";
+    }
+
     public String getProcedure() {
         return procedure;
     }
 
     public void reestartProcedure() {
+        formatter = new DecimalFormat("0.00");
         procedure = "";
     }
 }

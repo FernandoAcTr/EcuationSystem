@@ -44,12 +44,12 @@ public class MainController implements Initializable {
     JFXTabPane tabPane;
 
     int numVariables;
-    ResolvMethods gauss;
+    ResolvMethods solver;
     DecimalFormat formatter;
 
     public void initialize(URL location, ResourceBundle resources) {
         initGUI();
-        gauss = new ResolvMethods();
+        solver = new ResolvMethods();
         formatter = new DecimalFormat("0.00");
     }
 
@@ -92,9 +92,15 @@ public class MainController implements Initializable {
 
         cmbProcedure.getItems().add("Gauss");
         cmbProcedure.getItems().add("Gauss-Jordan");
+        cmbProcedure.getItems().add("Jacobi");
     }
 
+    /**
+     * Genera los TextField necesarios para el numero de variables
+     * @param numVariables
+     */
     private void setNumVariables(int numVariables) {
+
         paneTable.getChildren().clear();
         paneTable.getColumnConstraints().clear();
 
@@ -107,7 +113,7 @@ public class MainController implements Initializable {
         }
 
         for (int row = 1; row <= numVariables; row++)
-            for (int col = 0; col <= numVariables; col++) {
+            for (int col = 0; col <  numVariables + 1; col++) {
                 TextField txt = new TextField();
                 txt.getStyleClass().add("text-primary");
                 paneTable.add(txt, col, row);
@@ -123,6 +129,10 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Obtiene todos los valores de las TextField y los convierte en una matriz
+     * @return
+     */
     private double[][] getTableData() {
         double data[][] = new double[numVariables][numVariables + 1];
         int numTxt = numVariables;
@@ -138,44 +148,75 @@ public class MainController implements Initializable {
 
     private void btnResolveAction(int type){
         double data[][];
-        double results[];
 
         data = getTableData();
-        gauss.setMatrix(data);
-        gauss.setNumVariables(numVariables);
+        solver.setMatrix(data);
+        solver.setNumVariables(numVariables);
 
-       if(type == 0){
+       if(type == 0)
+          resolvGaussAction();
 
-           gauss.resolvByGauss();
-           results = gauss.getGaussResults();
+       else if(type == 1)
+           resolvGaussJordanAction();
 
-           textAreaSolution.clear();
-           textAreaSolution.setText(gauss.getProcedure());
-           gauss.reestartProcedure();
+       else if(type == 2)
+           resolJacobiAction();
 
-           textAreaSolution.appendText("\nCon esto obtenemos la solución de la última incógnita. Usarla para formar expresiones con las " +
-                   "filas anteriores, sustituir y resolver. Cada fila dará una solución para una incógnita\n");
-
-           for (int i = 0; i < results.length; i++) {
-               textAreaSolution.appendText("X"+(i+1)+" = "+formatter.format(results[i])+"\n");
-           }
-       }else if(type == 1){
-
-           gauss.resolvByGauss_Jordan();
-           results = gauss.getGaussJordanResults();
-
-           textAreaSolution.clear();
-           textAreaSolution.setText(gauss.getProcedure());
-           gauss.reestartProcedure();
-
-           textAreaSolution.appendText("\nCon esto obtenemos la solución de todas las incógnitas donde el valor de cada una" +
-                   "viene representado por el último valor de su respectiva fila en la matriz\n");
-
-           for (int i = 0; i < results.length; i++) {
-               textAreaSolution.appendText("X"+(i+1)+" = "+formatter.format(results[i])+"\n");
-           }
-       }
 
        tabPane.getSelectionModel().selectNext();
+    }
+
+    private void resolvGaussAction(){
+        double results[];
+
+        solver.resolvByGauss();
+        results = solver.getGaussResults();
+
+        textAreaSolution.clear();
+        textAreaSolution.setText(solver.getProcedure());
+        solver.reestartProcedure();
+
+        textAreaSolution.appendText("\nCon esto obtenemos la solución de la última incógnita. Usarla para formar expresiones con las " +
+                "filas anteriores, sustituir y resolver. Cada fila dará una solución para una incógnita\n");
+
+        for (int i = 0; i < results.length; i++)
+            textAreaSolution.appendText("X"+(i+1)+" = "+formatter.format(results[i])+"\n");
+    }
+
+    private void resolvGaussJordanAction(){
+        double results[];
+
+        solver.resolvByGauss_Jordan();
+        results = solver.getGaussJordanResults();
+
+        textAreaSolution.clear();
+        textAreaSolution.setText(solver.getProcedure());
+        solver.reestartProcedure();
+
+        textAreaSolution.appendText("\nCon esto obtenemos la solución de todas las incógnitas donde el valor de cada una" +
+                "viene representado por el último valor de su respectiva fila en la matriz\n");
+
+        for (int i = 0; i < results.length; i++)
+            textAreaSolution.appendText("X"+(i+1)+" = "+formatter.format(results[i])+"\n");
+
+    }
+
+    private void resolJacobiAction(){
+
+        double[][] values = {
+                {6,-1,-1,4, 17},
+                {1,-10,2,-1,-17},
+                {3,-2,8,-1,19},
+                {1,1,1,-5,-14}
+        };
+
+        solver.setNumVariables(4);
+        solver.setErrorPermited(0.001);
+        solver.setMatrix(values);
+        solver.resolvByJacobi();
+
+        textAreaSolution.clear();
+        textAreaSolution.setText(solver.getProcedure());
+        solver.reestartProcedure();
     }
 }
